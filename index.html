@@ -1,0 +1,1298 @@
+<!DOCTYPE html>
+<html lang="id" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SonWork - Dark Creative Portfolio</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --black-primary: #050505;
+            --black-secondary: #0a0a0a;
+            --black-tertiary: #111111;
+            --accent-gold: #d4af37;
+            --accent-crimson: #dc2626;
+            --text-gray: #888888;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--black-primary);
+            color: #ffffff;
+            overflow-x: hidden;
+            cursor: none;
+        }
+        
+        .font-serif {
+            font-family: 'Playfair Display', serif;
+        }
+        
+        /* Custom Cursor */
+        .cursor {
+            width: 20px;
+            height: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            border-radius: 50%;
+            position: fixed;
+            pointer-events: none;
+            z-index: 9999;
+            transition: transform 0.2s, background-color 0.2s;
+            mix-blend-mode: difference;
+        }
+        
+        .cursor.hover {
+            transform: scale(3);
+            background-color: white;
+            border-color: transparent;
+        }
+        
+        .cursor-dot {
+            width: 4px;
+            height: 4px;
+            background: white;
+            border-radius: 50%;
+            position: fixed;
+            pointer-events: none;
+            z-index: 9999;
+            mix-blend-mode: difference;
+        }
+        
+        /* Film Grain Effect */
+        .grain {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 9998;
+            opacity: 0.03;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+        }
+        
+        /* WebGL Canvas */
+        #webgl-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            opacity: 0.4;
+        }
+        
+        /* Text Effects */
+        .text-reveal {
+            overflow: hidden;
+        }
+        
+        .text-reveal span {
+            display: inline-block;
+            transform: translateY(100%);
+        }
+        
+        .char {
+            display: inline-block;
+            opacity: 0;
+            transform: translateY(50px) rotateX(90deg);
+        }
+        
+        /* Magnetic Button */
+        .magnetic-wrap {
+            position: relative;
+            display: inline-block;
+        }
+        
+        .magnetic-area {
+            position: absolute;
+            inset: -50px;
+            z-index: 1;
+        }
+        
+        /* Glitch Effect */
+        .glitch {
+            position: relative;
+        }
+        
+        .glitch::before,
+        .glitch::after {
+            content: attr(data-text);
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+        
+        .glitch::before {
+            left: 2px;
+            text-shadow: -1px 0 #ff0000;
+            clip: rect(24px, 550px, 90px, 0);
+            animation: glitch-anim-2 3s infinite linear alternate-reverse;
+        }
+        
+        .glitch::after {
+            left: -2px;
+            text-shadow: -1px 0 #00ff00;
+            clip: rect(85px, 550px, 140px, 0);
+            animation: glitch-anim 2.5s infinite linear alternate-reverse;
+        }
+        
+        @keyframes glitch-anim {
+            0% { clip: rect(10px, 9999px, 85px, 0); }
+            20% { clip: rect(63px, 9999px, 130px, 0); }
+            40% { clip: rect(25px, 9999px, 145px, 0); }
+            60% { clip: rect(89px, 9999px, 55px, 0); }
+            80% { clip: rect(45px, 9999px, 99px, 0); }
+            100% { clip: rect(12px, 9999px, 120px, 0); }
+        }
+        
+        @keyframes glitch-anim-2 {
+            0% { clip: rect(65px, 9999px, 99px, 0); }
+            20% { clip: rect(15px, 9999px, 45px, 0); }
+            40% { clip: rect(85px, 9999px, 120px, 0); }
+            60% { clip: rect(35px, 9999px, 75px, 0); }
+            80% { clip: rect(95px, 9999px, 140px, 0); }
+            100% { clip: rect(5px, 9999px, 60px, 0); }
+        }
+        
+        /* Scan Line */
+        .scan-line {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: rgba(255, 255, 255, 0.1);
+            z-index: 9997;
+            animation: scan 8s linear infinite;
+            pointer-events: none;
+        }
+        
+        @keyframes scan {
+            0% { transform: translateY(-100vh); }
+            100% { transform: translateY(100vh); }
+        }
+        
+        /* Portfolio Card */
+        .portfolio-card {
+            position: relative;
+            overflow: hidden;
+            background: var(--black-secondary);
+            transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        
+        .portfolio-card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, transparent 40%, rgba(255,255,255,0.1) 50%, transparent 60%);
+            transform: translateX(-100%);
+            transition: transform 0.6s;
+            z-index: 2;
+        }
+        
+        .portfolio-card:hover::before {
+            transform: translateX(100%);
+        }
+        
+        .portfolio-card:hover {
+            transform: translateY(-10px);
+        }
+        
+        .portfolio-card img {
+            transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+            filter: grayscale(100%) contrast(1.2);
+        }
+        
+        .portfolio-card:hover img {
+            transform: scale(1.1);
+            filter: grayscale(0%) contrast(1);
+        }
+        
+        /* Marquee */
+        .marquee {
+            overflow: hidden;
+            white-space: nowrap;
+        }
+        
+        .marquee-content {
+            display: inline-block;
+            animation: marquee 20s linear infinite;
+        }
+        
+        @keyframes marquee {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+        
+        /* Loader */
+        .loader {
+            position: fixed;
+            inset: 0;
+            background: var(--black-primary);
+            z-index: 10000;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .loader-bar {
+            width: 200px;
+            height: 2px;
+            background: rgba(255,255,255,0.1);
+            margin-top: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .loader-progress {
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            background: white;
+            width: 0%;
+            transition: width 0.3s;
+        }
+        
+        /* Navigation */
+        .nav-link {
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 1px;
+            background: white;
+            transform: translateX(-100%);
+            transition: transform 0.3s;
+        }
+        
+        .nav-link:hover::after {
+            transform: translateX(0);
+        }
+        
+        /* Scroll Velocity Skew */
+        .velocity-skew {
+            transition: transform 0.1s;
+        }
+        
+        /* RGB Split Effect */
+        .rgb-split {
+            position: relative;
+        }
+        
+        .rgb-split:hover {
+            animation: rgb-shift 0.3s;
+        }
+        
+        @keyframes rgb-shift {
+            0% { text-shadow: 2px 0 #ff0000, -2px 0 #00ff00; }
+            25% { text-shadow: -2px 0 #ff0000, 2px 0 #00ff00; }
+            50% { text-shadow: 2px 2px #ff0000, -2px -2px #00ff00; }
+            75% { text-shadow: -2px 2px #ff0000, 2px -2px #00ff00; }
+            100% { text-shadow: none; }
+        }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: var(--black-primary);
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: #333;
+            border-radius: 4px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+        
+        /* Selection */
+        ::selection {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <!-- Custom Cursor -->
+    <div class="cursor hidden md:block"></div>
+    <div class="cursor-dot hidden md:block"></div>
+
+    <!-- Film Grain -->
+    <div class="grain"></div>
+    
+    <!-- Scan Line -->
+    <div class="scan-line"></div>
+
+    <!-- WebGL Background -->
+    <canvas id="webgl-canvas"></canvas>
+
+    <!-- Loader -->
+    <div class="loader" id="loader">
+        <div class="text-6xl font-serif font-bold tracking-tighter glitch" data-text="SonWork">SonWork</div>
+        <div class="loader-bar">
+            <div class="loader-progress" id="loader-progress"></div>
+        </div>
+        <div class="mt-4 text-xs tracking-[0.3em] uppercase text-gray-500">Loading Experience</div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="fixed top-0 w-full z-50 px-6 py-6 mix-blend-difference" id="navbar">
+        <div class="max-w-7xl mx-auto flex justify-between items-center">
+            <a href="#" class="text-2xl font-serif font-bold tracking-tighter hover:opacity-70 transition-opacity">
+                SonWork
+            </a>
+            
+            <div class="hidden md:flex items-center gap-12">
+                <a href="#work" class="nav-link text-sm uppercase tracking-widest py-2">Work</a>
+                <a href="#about" class="nav-link text-sm uppercase tracking-widest py-2">About</a>
+                <a href="#services" class="nav-link text-sm uppercase tracking-widest py-2">Services</a>
+                <a href="#contact" class="magnetic-wrap">
+                    <div class="magnetic-area"></div>
+                    <span class="relative z-10 px-6 py-3 border border-white/30 rounded-full text-sm uppercase tracking-widest hover:bg-white hover:text-black transition-all duration-300">
+                        Contact
+                    </span>
+                </a>
+            </div>
+
+            <button class="md:hidden text-white p-2" id="menu-toggle">
+                <div class="w-6 h-0.5 bg-white mb-1.5 transition-all" id="line-1"></div>
+                <div class="w-6 h-0.5 bg-white transition-all" id="line-2"></div>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Mobile Menu -->
+    <div class="fixed inset-0 bg-black z-40 transform translate-x-full transition-transform duration-700 ease-out" id="mobile-menu">
+        <div class="flex flex-col items-center justify-center h-full gap-8">
+            <a href="#work" class="mobile-link text-4xl font-serif font-bold opacity-0 transform translate-y-8">Work</a>
+            <a href="#about" class="mobile-link text-4xl font-serif font-bold opacity-0 transform translate-y-8">About</a>
+            <a href="#services" class="mobile-link text-4xl font-serif font-bold opacity-0 transform translate-y-8">Services</a>
+            <a href="#contact" class="mobile-link text-4xl font-serif font-bold opacity-0 transform translate-y-8">Contact</a>
+        </div>
+    </div>
+
+    <!-- Hero Section -->
+    <section class="relative min-h-screen flex items-center justify-center overflow-hidden">
+        <div class="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-[#050505]"></div>
+        
+        <div class="relative z-10 text-center px-6 max-w-6xl mx-auto">
+            <div class="mb-8 overflow-hidden">
+                <p class="text-gray-500 text-xs md:text-sm uppercase tracking-[0.5em] reveal-text" id="hero-subtitle">
+                    Creative Digital Studio
+                </p>
+            </div>
+            
+            <h1 class="font-serif text-6xl md:text-9xl lg:text-[12rem] font-bold leading-[0.9] mb-8" id="hero-title">
+                <div class="overflow-hidden">
+                    <span class="block transform translate-y-full" id="title-line-1">CREATE</span>
+                </div>
+                <div class="overflow-hidden">
+                    <span class="block transform translate-y-full text-gray-600" id="title-line-2">THE</span>
+                </div>
+                <div class="overflow-hidden">
+                    <span class="block transform translate-y-full" id="title-line-3">UNSEEN</span>
+                </div>
+            </h1>
+
+            <div class="max-w-xl mx-auto mt-12 opacity-0" id="hero-desc">
+                <p class="text-gray-400 text-lg md:text-xl leading-relaxed">
+                    Transforming visions into stark reality through photography, digital craftsmanship, and cinematic storytelling.
+                </p>
+            </div>
+
+            <div class="mt-16 flex flex-col sm:flex-row gap-6 justify-center items-center opacity-0" id="hero-cta">
+                <a href="#work" class="magnetic-wrap group">
+                    <div class="magnetic-area"></div>
+                    <span class="relative z-10 inline-flex items-center gap-3 px-8 py-4 bg-white text-black font-medium rounded-full overflow-hidden">
+                        <span class="relative z-10">View Projects</span>
+                        <svg class="w-4 h-4 relative z-10 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
+                        </svg>
+                        <div class="absolute inset-0 bg-gray-200 transform scale-x-0 group-hover:scale-x-100 transition-transform origin-left duration-300"></div>
+                    </span>
+                </a>
+                
+                <a href="#about" class="text-gray-400 hover:text-white transition-colors text-sm uppercase tracking-widest">
+                    Learn More ↓
+                </a>
+            </div>
+        </div>
+
+        <!-- Scroll Indicator -->
+        <div class="absolute bottom-12 left-1/2 -translate-x-1/2 flex flex-col items-center gap-4 opacity-0" id="scroll-indicator">
+            <div class="w-px h-16 bg-gradient-to-b from-transparent via-white to-transparent animate-pulse"></div>
+        </div>
+    </section>
+
+    <!-- Marquee Section -->
+    <div class="py-12 border-y border-white/10 bg-black/50 backdrop-blur-sm">
+        <div class="marquee">
+            <div class="marquee-content text-4xl md:text-6xl font-serif font-bold text-gray-800">
+                PHOTOGRAPHY • DIGITAL PRODUCTS • WRITING • VIDEO PRODUCTION • BRAND IDENTITY • MOTION DESIGN • PHOTOGRAPHY • DIGITAL PRODUCTS • WRITING • VIDEO PRODUCTION • BRAND IDENTITY • MOTION DESIGN •
+            </div>
+        </div>
+    </div>
+
+    <!-- Portfolio Section -->
+    <section id="work" class="py-32 relative">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="flex flex-col md:flex-row justify-between items-end mb-20">
+                <div>
+                    <span class="text-gray-500 text-xs uppercase tracking-[0.3em] mb-4 block">Selected Works</span>
+                    <h2 class="font-serif text-5xl md:text-7xl font-bold">Portfolio</h2>
+                </div>
+                
+                <div class="flex gap-4 mt-8 md:mt-0" id="portfolio-filters">
+                    <button class="filter-btn active text-sm uppercase tracking-widest px-4 py-2 border-b-2 border-white transition-all" data-filter="all">All</button>
+                    <button class="filter-btn text-sm uppercase tracking-widest px-4 py-2 border-b-2 border-transparent text-gray-500 hover:text-white transition-all" data-filter="photo">Photo</button>
+                    <button class="filter-btn text-sm uppercase tracking-widest px-4 py-2 border-b-2 border-transparent text-gray-500 hover:text-white transition-all" data-filter="digital">Digital</button>
+                    <button class="filter-btn text-sm uppercase tracking-widest px-4 py-2 border-b-2 border-transparent text-gray-500 hover:text-white transition-all" data-filter="writing">Writing</button>
+                    <button class="filter-btn text-sm uppercase tracking-widest px-4 py-2 border-b-2 border-transparent text-gray-500 hover:text-white transition-all" data-filter="video">Video</button>
+                </div>
+            </div>
+
+            <!-- Portfolio Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-1" id="portfolio-grid">
+                
+                <!-- Item 1: Photography -->
+                <div class="portfolio-card group aspect-[3/4] cursor-pointer" data-category="photo">
+                    <div class="absolute inset-0 bg-[#0a0a0a]">
+                        <img src="https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?w=800&q=80" 
+                             alt="Mountain Series" 
+                             class="w-full h-full object-cover opacity-60 group-hover:opacity-100 transition-opacity">
+                    </div>
+                    <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                    <div class="absolute bottom-0 left-0 p-8 transform translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-500">
+                        <span class="text-xs uppercase tracking-widest text-gray-400 mb-2 block">01 — Photography</span>
+                        <h3 class="font-serif text-2xl font-bold mb-2">Alpine Shadows</h3>
+                        <p class="text-sm text-gray-400">Mountain landscape series</p>
+                    </div>
+                </div>
+
+                <!-- Item 2: Digital -->
+                <div class="portfolio-card group aspect-[3/4] cursor-pointer" data-category="digital">
+                    <div class="absolute inset-0 bg-[#0a0a0a] flex items-center justify-center">
+                        <div class="text-center p-8">
+                            <div class="w-32 h-32 mx-auto mb-6 rounded-full border border-white/20 flex items-center justify-center group-hover:scale-110 transition-transform duration-500">
+                                <svg class="w-12 h-12 text-white/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                    <div class="absolute bottom-0 left-0 p-8 transform translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-500">
+                        <span class="text-xs uppercase tracking-widest text-gray-400 mb-2 block">02 — Digital Product</span>
+                        <h3 class="font-serif text-2xl font-bold mb-2">Nexus Banking</h3>
+                        <p class="text-sm text-gray-400">Fintech application design</p>
+                    </div>
+                </div>
+
+                <!-- Item 3: Writing -->
+                <div class="portfolio-card group aspect-[3/4] cursor-pointer" data-category="writing">
+                    <div class="absolute inset-0 bg-[#0a0a0a] flex items-center justify-center p-12">
+                        <div class="border border-white/10 p-8 transform group-hover:rotate-3 transition-transform duration-500">
+                            <div class="font-serif text-4xl italic leading-tight text-gray-300">"The silence between words speaks louder than the text itself"</div>
+                        </div>
+                    </div>
+                    <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                    <div class="absolute bottom-0 left-0 p-8 transform translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-500">
+                        <span class="text-xs uppercase tracking-widest text-gray-400 mb-2 block">03 — Writing</span>
+                        <h3 class="font-serif text-2xl font-bold mb-2">Silent Echoes</h3>
+                        <p class="text-sm text-gray-400">Literary collection</p>
+                    </div>
+                </div>
+
+                <!-- Item 4: Video -->
+                <div class="portfolio-card group aspect-[3/4] cursor-pointer" data-category="video">
+                    <div class="absolute inset-0 bg-[#0a0a0a]">
+                        <img src="https://images.unsplash.com/photo-1536240478700-b869070f9279?w=800&q=80" 
+                             alt="Cinematic Work" 
+                             class="w-full h-full object-cover opacity-60 group-hover:opacity-100 transition-opacity">
+                        <div class="absolute inset-0 flex items-center justify-center">
+                            <div class="w-20 h-20 rounded-full border border-white/30 flex items-center justify-center backdrop-blur-sm group-hover:scale-110 transition-transform">
+                                <svg class="w-8 h-8 text-white ml-1" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M8 5v14l11-7z"/>
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                    <div class="absolute bottom-0 left-0 p-8 transform translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-500">
+                        <span class="text-xs uppercase tracking-widest text-gray-400 mb-2 block">04 — Video</span>
+                        <h3 class="font-serif text-2xl font-bold mb-2">Noir City</h3>
+                        <p class="text-sm text-gray-400">Cinematic short film</p>
+                    </div>
+                </div>
+
+                <!-- Item 5: Photography -->
+                <div class="portfolio-card group aspect-[3/4] cursor-pointer" data-category="photo">
+                    <div class="absolute inset-0 bg-[#0a0a0a]">
+                        <img src="https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=800&q=80" 
+                             alt="Portrait Series" 
+                             class="w-full h-full object-cover opacity-60 group-hover:opacity-100 transition-opacity">
+                    </div>
+                    <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                    <div class="absolute bottom-0 left-0 p-8 transform translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-500">
+                        <span class="text-xs uppercase tracking-widest text-gray-400 mb-2 block">05 — Photography</span>
+                        <h3 class="font-serif text-2xl font-bold mb-2">Human Form</h3>
+                        <p class="text-sm text-gray-400">Portrait study</p>
+                    </div>
+                </div>
+
+                <!-- Item 6: Digital -->
+                <div class="portfolio-card group aspect-[3/4] cursor-pointer" data-category="digital">
+                    <div class="absolute inset-0 bg-[#0a0a0a] flex items-center justify-center">
+                        <div class="grid grid-cols-3 gap-2 p-8 opacity-50 group-hover:opacity-100 transition-opacity">
+                            <div class="w-8 h-8 bg-white/20 rounded"></div>
+                            <div class="w-8 h-8 bg-white/10 rounded"></div>
+                            <div class="w-8 h-8 bg-white/30 rounded"></div>
+                            <div class="w-8 h-8 bg-white/10 rounded"></div>
+                            <div class="w-8 h-8 bg-white/40 rounded"></div>
+                            <div class="w-8 h-8 bg-white/20 rounded"></div>
+                            <div class="w-8 h-8 bg-white/30 rounded"></div>
+                            <div class="w-8 h-8 bg-white/20 rounded"></div>
+                            <div class="w-8 h-8 bg-white/10 rounded"></div>
+                        </div>
+                    </div>
+                    <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                    <div class="absolute bottom-0 left-0 p-8 transform translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-500">
+                        <span class="text-xs uppercase tracking-widest text-gray-400 mb-2 block">06 — Digital Product</span>
+                        <h3 class="font-serif text-2xl font-bold mb-2">Data Void</h3>
+                        <p class="text-sm text-gray-400">Analytics platform</p>
+                    </div>
+                </div>
+
+                <!-- Item 7: Writing -->
+                <div class="portfolio-card group aspect-[3/4] cursor-pointer" data-category="writing">
+                    <div class="absolute inset-0 bg-[#0a0a0a] flex items-center justify-center">
+                        <div class="text-center">
+                            <div class="text-6xl font-serif text-gray-700 mb-4 group-hover:text-gray-500 transition-colors">Aa</div>
+                            <div class="text-xs uppercase tracking-widest text-gray-600">Typography</div>
+                        </div>
+                    </div>
+                    <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                    <div class="absolute bottom-0 left-0 p-8 transform translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-500">
+                        <span class="text-xs uppercase tracking-widest text-gray-400 mb-2 block">07 — Writing</span>
+                        <h3 class="font-serif text-2xl font-bold mb-2">Type & Space</h3>
+                        <p class="text-sm text-gray-400">Essay on minimalism</p>
+                    </div>
+                </div>
+
+                <!-- Item 8: Video -->
+                <div class="portfolio-card group aspect-[3/4] cursor-pointer" data-category="video">
+                    <div class="absolute inset-0 bg-[#0a0a0a]">
+                        <img src="https://images.unsplash.com/photo-1574717024653-61fd2cf4d44d?w=800&q=80" 
+                             alt="Commercial Work" 
+                             class="w-full h-full object-cover opacity-60 group-hover:opacity-100 transition-opacity">
+                        <div class="absolute inset-0 flex items-center justify-center">
+                            <div class="w-20 h-20 rounded-full border border-white/30 flex items-center justify-center backdrop-blur-sm group-hover:scale-110 transition-transform">
+                                <svg class="w-8 h-8 text-white ml-1" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M8 5v14l11-7z"/>
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                    <div class="absolute bottom-0 left-0 p-8 transform translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-500">
+                        <span class="text-xs uppercase tracking-widest text-gray-400 mb-2 block">08 — Video</span>
+                        <h3 class="font-serif text-2xl font-bold mb-2">Brand Void</h3>
+                        <p class="text-sm text-gray-400">Commercial production</p>
+                    </div>
+                </div>
+
+                <!-- Item 9: Photography -->
+                <div class="portfolio-card group aspect-[3/4] cursor-pointer" data-category="photo">
+                    <div class="absolute inset-0 bg-[#0a0a0a]">
+                        <img src="https://images.unsplash.com/photo-1554048612-b6a482bc67e5?w=800&q=80" 
+                             alt="Abstract Series" 
+                             class="w-full h-full object-cover opacity-60 group-hover:opacity-100 transition-opacity">
+                    </div>
+                    <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                    <div class="absolute bottom-0 left-0 p-8 transform translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-500">
+                        <span class="text-xs uppercase tracking-widest text-gray-400 mb-2 block">09 — Photography</span>
+                        <h3 class="font-serif text-2xl font-bold mb-2">Light Study</h3>
+                        <p class="text-sm text-gray-400">Abstract photography</p>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section id="about" class="py-32 relative bg-[#080808]">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
+                <div class="relative">
+                    <div class="aspect-[4/5] bg-[#0a0a0a] relative overflow-hidden group">
+                        <div class="absolute inset-0 bg-gradient-to-br from-gray-800 to-black"></div>
+                        <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=600&q=80" 
+                             alt="Creative Director" 
+                             class="w-full h-full object-cover grayscale opacity-80 group-hover:opacity-100 group-hover:grayscale-0 transition-all duration-700 mix-blend-luminosity">
+                        
+                        <!-- Floating Elements -->
+                        <div class="absolute top-8 right-8 glass-dark p-4 rounded-lg backdrop-blur-md bg-black/30 border border-white/10">
+                            <div class="text-3xl font-serif font-bold">8+</div>
+                            <div class="text-xs uppercase tracking-widest text-gray-400">Years</div>
+                        </div>
+                        
+                        <div class="absolute bottom-8 left-8 glass-dark p-4 rounded-lg backdrop-blur-md bg-black/30 border border-white/10">
+                            <div class="text-3xl font-serif font-bold">200+</div>
+                            <div class="text-xs uppercase tracking-widest text-gray-400">Projects</div>
+                        </div>
+                    </div>
+                    
+                    <!-- Decorative Frame -->
+                    <div class="absolute -inset-4 border border-white/5 pointer-events-none"></div>
+                    <div class="absolute -inset-8 border border-white/5 pointer-events-none"></div>
+                </div>
+
+                <div>
+                    <span class="text-gray-500 text-xs uppercase tracking-[0.3em] mb-6 block">About Studio</span>
+                    <h2 class="font-serif text-5xl md:text-6xl font-bold mb-8 leading-tight">
+                        Crafting Darkness<br>
+                        <span class="text-gray-600">Into Art</span>
+                    </h2>
+                    
+                    <div class="space-y-6 text-gray-400 leading-relaxed">
+                        <p class="text-lg">
+                            SonWork operates in the space between shadow and light. We are a collective of photographers, designers, writers, and filmmakers united by an obsession with the stark and the sublime.
+                        </p>
+                        <p>
+                            Our work rejects the superfluous. Every pixel, every word, every frame serves a purpose. We believe that true creativity emerges from constraint—from the discipline of black space and silent moments.
+                        </p>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-8 mt-12">
+                        <div class="border-l border-white/20 pl-6">
+                            <h4 class="font-serif text-xl font-bold mb-2">Vision</h4>
+                            <p class="text-sm text-gray-500">To strip away the unnecessary and reveal the essential truth of every subject.</p>
+                        </div>
+                        <div class="border-l border-white/20 pl-6">
+                            <h4 class="font-serif text-xl font-bold mb-2">Method</h4>
+                            <p class="text-sm text-gray-500">Rigorous attention to negative space, contrast, and the power of restraint.</p>
+                        </div>
+                    </div>
+
+                    <div class="mt-12 flex gap-8">
+                        <a href="#contact" class="magnetic-wrap">
+                            <div class="magnetic-area"></div>
+                            <span class="relative z-10 inline-flex items-center gap-2 text-sm uppercase tracking-widest border-b border-white pb-1 hover:text-gray-400 transition-colors">
+                                Start Project
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
+                                </svg>
+                            </span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Services Section -->
+    <section id="services" class="py-32 relative">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="text-center mb-20">
+                <span class="text-gray-500 text-xs uppercase tracking-[0.3em] mb-4 block">Capabilities</span>
+                <h2 class="font-serif text-5xl md:text-7xl font-bold">Services</h2>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-px bg-white/10">
+                
+                <!-- Service 1 -->
+                <div class="service-card group bg-[#050505] p-12 md:p-16 hover:bg-[#0a0a0a] transition-colors cursor-pointer">
+                    <div class="flex justify-between items-start mb-8">
+                        <span class="text-gray-600 font-serif text-5xl font-bold">01</span>
+                        <div class="w-12 h-12 rounded-full border border-white/20 flex items-center justify-center group-hover:bg-white group-hover:text-black transition-all">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/>
+                            </svg>
+                        </div>
+                    </div>
+                    <h3 class="font-serif text-3xl font-bold mb-4 group-hover:text-gray-300 transition-colors">Photography</h3>
+                    <p class="text-gray-500 leading-relaxed mb-6">Editorial, portrait, and architectural photography with a focus on chiaroscuro and emotional depth.</p>
+                    <div class="flex gap-4 text-xs uppercase tracking-widest text-gray-600">
+                        <span>Portrait</span>
+                        <span>•</span>
+                        <span>Landscape</span>
+                        <span>•</span>
+                        <span>Product</span>
+                    </div>
+                </div>
+
+                <!-- Service 2 -->
+                <div class="service-card group bg-[#050505] p-12 md:p-16 hover:bg-[#0a0a0a] transition-colors cursor-pointer">
+                    <div class="flex justify-between items-start mb-8">
+                        <span class="text-gray-600 font-serif text-5xl font-bold">02</span>
+                        <div class="w-12 h-12 rounded-full border border-white/20 flex items-center justify-center group-hover:bg-white group-hover:text-black transition-all">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                            </svg>
+                        </div>
+                    </div>
+                    <h3 class="font-serif text-3xl font-bold mb-4 group-hover:text-gray-300 transition-colors">Digital Products</h3>
+                    <p class="text-gray-500 leading-relaxed mb-6">UI/UX design for web and mobile applications. Interfaces that prioritize function and dark elegance.</p>
+                    <div class="flex gap-4 text-xs uppercase tracking-widest text-gray-600">
+                        <span>UI Design</span>
+                        <span>•</span>
+                        <span>UX Research</span>
+                        <span>•</span>
+                        <span>Prototyping</span>
+                    </div>
+                </div>
+
+                <!-- Service 3 -->
+                <div class="service-card group bg-[#050505] p-12 md:p-16 hover:bg-[#0a0a0a] transition-colors cursor-pointer">
+                    <div class="flex justify-between items-start mb-8">
+                        <span class="text-gray-600 font-serif text-5xl font-bold">03</span>
+                        <div class="w-12 h-12 rounded-full border border-white/20 flex items-center justify-center group-hover:bg-white group-hover:text-black transition-all">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                            </svg>
+                        </div>
+                    </div>
+                    <h3 class="font-serif text-3xl font-bold mb-4 group-hover:text-gray-300 transition-colors">Writing</h3>
+                    <p class="text-gray-500 leading-relaxed mb-6">Copywriting, editorial content, and creative fiction. Words that cut through noise with precision.</p>
+                    <div class="flex gap-4 text-xs uppercase tracking-widest text-gray-600">
+                        <span>Copywriting</span>
+                        <span>•</span>
+                        <span>Editorial</span>
+                        <span>•</span>
+                        <span>Storytelling</span>
+                    </div>
+                </div>
+
+                <!-- Service 4 -->
+                <div class="service-card group bg-[#050505] p-12 md:p-16 hover:bg-[#0a0a0a] transition-colors cursor-pointer">
+                    <div class="flex justify-between items-start mb-8">
+                        <span class="text-gray-600 font-serif text-5xl font-bold">04</span>
+                        <div class="w-12 h-12 rounded-full border border-white/20 flex items-center justify-center group-hover:bg-white group-hover:text-black transition-all">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+                            </svg>
+                        </div>
+                    </div>
+                    <h3 class="font-serif text-3xl font-bold mb-4 group-hover:text-gray-300 transition-colors">Video</h3>
+                    <p class="text-gray-500 leading-relaxed mb-6">Cinematography, editing, and motion design. Visual narratives with cinematic gravitas.</p>
+                    <div class="flex gap-4 text-xs uppercase tracking-widest text-gray-600">
+                        <span>Commercial</span>
+                        <span>•</span>
+                        <span>Documentary</span>
+                        <span>•</span>
+                        <span>Motion</span>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact" class="py-32 relative bg-[#080808]">
+        <div class="max-w-4xl mx-auto px-6">
+            <div class="text-center mb-20">
+                <span class="text-gray-500 text-xs uppercase tracking-[0.3em] mb-4 block">Get in Touch</span>
+                <h2 class="font-serif text-5xl md:text-7xl font-bold mb-6">Let's Create</h2>
+                <p class="text-gray-400 text-lg max-w-xl mx-auto">
+                    Have a project in mind? We'd love to hear about it. Send us a message and we'll respond within 24 hours.
+                </p>
+            </div>
+
+            <form class="space-y-8" id="contact-form">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div class="relative group">
+                        <input type="text" id="name" required 
+                               class="w-full bg-transparent border-b border-white/20 py-4 text-white focus:outline-none focus:border-white transition-colors peer placeholder-transparent">
+                        <label for="name" 
+                               class="absolute left-0 top-4 text-gray-500 transition-all duration-300 peer-focus:top-0 peer-focus:text-xs peer-focus:text-white peer-[:not(:placeholder-shown)]:top-0 peer-[:not(:placeholder-shown)]:text-xs">
+                            Name
+                        </label>
+                    </div>
+                    <div class="relative group">
+                        <input type="email" id="email" required 
+                               class="w-full bg-transparent border-b border-white/20 py-4 text-white focus:outline-none focus:border-white transition-colors peer placeholder-transparent">
+                        <label for="email" 
+                               class="absolute left-0 top-4 text-gray-500 transition-all duration-300 peer-focus:top-0 peer-focus:text-xs peer-focus:text-white peer-[:not(:placeholder-shown)]:top-0 peer-[:not(:placeholder-shown)]:text-xs">
+                            Email
+                        </label>
+                    </div>
+                </div>
+
+                <div class="relative group">
+                    <select id="service" required 
+                            class="w-full bg-transparent border-b border-white/20 py-4 text-white focus:outline-none focus:border-white transition-colors appearance-none cursor-pointer">
+                        <option value="" disabled selected class="bg-black">Select Service</option>
+                        <option value="photography" class="bg-black">Photography</option>
+                        <option value="digital" class="bg-black">Digital Product</option>
+                        <option value="writing" class="bg-black">Writing</option>
+                        <option value="video" class="bg-black">Video Production</option>
+                    </select>
+                    <div class="absolute right-0 top-4 pointer-events-none">
+                        <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                        </svg>
+                    </div>
+                </div>
+
+                <div class="relative group">
+                    <textarea id="message" rows="4" required 
+                              class="w-full bg-transparent border-b border-white/20 py-4 text-white focus:outline-none focus:border-white transition-colors peer placeholder-transparent resize-none"></textarea>
+                    <label for="message" 
+                           class="absolute left-0 top-4 text-gray-500 transition-all duration-300 peer-focus:top-0 peer-focus:text-xs peer-focus:text-white peer-[:not(:placeholder-shown)]:top-0 peer-[:not(:placeholder-shown)]:text-xs">
+                        Tell us about your project
+                    </label>
+                </div>
+
+                <div class="text-center pt-8">
+                    <button type="submit" class="magnetic-wrap group">
+                        <div class="magnetic-area"></div>
+                        <span class="relative z-10 inline-flex items-center gap-3 px-12 py-5 bg-white text-black font-medium text-sm uppercase tracking-widest rounded-full overflow-hidden hover:bg-gray-200 transition-colors">
+                            Send Message
+                            <svg class="w-4 h-4 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/>
+                            </svg>
+                        </span>
+                    </button>
+                </div>
+            </form>
+
+            <div class="mt-20 pt-20 border-t border-white/10 grid grid-cols-1 md:grid-cols-3 gap-12 text-center">
+                <div>
+                    <div class="text-gray-500 text-xs uppercase tracking-widest mb-2">Email</div>
+                    <a href="mailto:hello@sonwork.studio" class="text-lg hover:text-gray-400 transition-colors">hello@sonwork.studio</a>
+                </div>
+                <div>
+                    <div class="text-gray-500 text-xs uppercase tracking-widest mb-2">Location</div>
+                    <div class="text-lg">Jakarta, Indonesia</div>
+                </div>
+                <div>
+                    <div class="text-gray-500 text-xs uppercase tracking-widest mb-2">Social</div>
+                    <div class="flex justify-center gap-6">
+                        <a href="#" class="hover:text-gray-400 transition-colors">IG</a>
+                        <a href="#" class="hover:text-gray-400 transition-colors">TW</a>
+                        <a href="#" class="hover:text-gray-400 transition-colors">LI</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="py-12 bg-black border-t border-white/5">
+        <div class="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-6">
+            <div class="font-serif text-2xl font-bold">SonWork</div>
+            <div class="text-gray-600 text-sm">© 2024 SonWork Studio. All rights reserved.</div>
+            <div class="flex gap-8 text-sm text-gray-500">
+                <a href="#" class="hover:text-white transition-colors">Privacy</a>
+                <a href="#" class="hover:text-white transition-colors">Terms</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Success Modal -->
+    <div id="success-modal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-black/90 backdrop-blur-sm">
+        <div class="bg-[#0a0a0a] border border-white/10 p-12 max-w-md w-full text-center transform scale-95 opacity-0 transition-all duration-500" id="modal-content">
+            <div class="w-16 h-16 mx-auto mb-6 rounded-full border border-white/20 flex items-center justify-center">
+                <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                </svg>
+            </div>
+            <h3 class="font-serif text-2xl font-bold mb-4">Message Received</h3>
+            <p class="text-gray-400 mb-8">We'll review your project details and get back to you within 24 hours.</p>
+            <button onclick="closeModal()" class="px-8 py-3 border border-white/20 rounded-full hover:bg-white hover:text-black transition-all text-sm uppercase tracking-widest">
+                Close
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // WebGL Background
+        const canvas = document.getElementById('webgl-canvas');
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
+        
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        
+        // Create particles
+        const particlesGeometry = new THREE.BufferGeometry();
+        const particlesCount = 700;
+        const posArray = new Float32Array(particlesCount * 3);
+        
+        for(let i = 0; i < particlesCount * 3; i++) {
+            posArray[i] = (Math.random() - 0.5) * 5;
+        }
+        
+        particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
+        
+        const particlesMaterial = new THREE.PointsMaterial({
+            size: 0.005,
+            color: 0x444444,
+            transparent: true,
+            opacity: 0.8
+        });
+        
+        const particlesMesh = new THREE.Points(particlesGeometry, particlesMaterial);
+        scene.add(particlesMesh);
+        
+        camera.position.z = 3;
+        
+        // Mouse movement
+        let mouseX = 0;
+        let mouseY = 0;
+        
+        document.addEventListener('mousemove', (event) => {
+            mouseX = event.clientX / window.innerWidth - 0.5;
+            mouseY = event.clientY / window.innerHeight - 0.5;
+        });
+        
+        // Animation loop
+        function animate() {
+            requestAnimationFrame(animate);
+            
+            particlesMesh.rotation.y += 0.001;
+            particlesMesh.rotation.x += 0.001;
+            
+            particlesMesh.rotation.x += mouseY * 0.05;
+            particlesMesh.rotation.y += mouseX * 0.05;
+            
+            renderer.render(scene, camera);
+        }
+        
+        animate();
+        
+        // Resize handler
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        // Loader
+        window.addEventListener('load', () => {
+            const loader = document.getElementById('loader');
+            const progress = document.getElementById('loader-progress');
+            
+            let width = 0;
+            const interval = setInterval(() => {
+                if (width >= 100) {
+                    clearInterval(interval);
+                    setTimeout(() => {
+                        gsap.to(loader, {
+                            opacity: 0,
+                            duration: 0.8,
+                            onComplete: () => {
+                                loader.style.display = 'none';
+                                initAnimations();
+                            }
+                        });
+                    }, 500);
+                } else {
+                    width += Math.random() * 15;
+                    if (width > 100) width = 100;
+                    progress.style.width = width + '%';
+                }
+            }, 100);
+        });
+
+        // Custom Cursor
+        const cursor = document.querySelector('.cursor');
+        const cursorDot = document.querySelector('.cursor-dot');
+        
+        if (window.matchMedia("(min-width: 768px)").matches) {
+            document.addEventListener('mousemove', (e) => {
+                cursor.style.left = e.clientX + 'px';
+                cursor.style.top = e.clientY + 'px';
+                cursorDot.style.left = e.clientX + 'px';
+                cursorDot.style.top = e.clientY + 'px';
+            });
+            
+            document.querySelectorAll('a, button, .portfolio-card, .service-card').forEach(el => {
+                el.addEventListener('mouseenter', () => cursor.classList.add('hover'));
+                el.addEventListener('mouseleave', () => cursor.classList.remove('hover'));
+            });
+        }
+
+        // GSAP Animations
+        function initAnimations() {
+            gsap.registerPlugin(ScrollTrigger);
+            
+            // Hero Animations
+            const heroTl = gsap.timeline();
+            
+            heroTl.to('#title-line-1', {
+                y: 0,
+                duration: 1.2,
+                ease: "power4.out"
+            })
+            .to('#title-line-2', {
+                y: 0,
+                duration: 1.2,
+                ease: "power4.out"
+            }, "-=0.9")
+            .to('#title-line-3', {
+                y: 0,
+                duration: 1.2,
+                ease: "power4.out"
+            }, "-=0.9")
+            .to('#hero-desc', {
+                opacity: 1,
+                y: 0,
+                duration: 1,
+                ease: "power3.out"
+            }, "-=0.6")
+            .to('#hero-cta', {
+                opacity: 1,
+                y: 0,
+                duration: 1,
+                ease: "power3.out"
+            }, "-=0.6")
+            .to('#scroll-indicator', {
+                opacity: 1,
+                duration: 1
+            }, "-=0.4");
+
+            // Portfolio Items
+            gsap.from('.portfolio-card', {
+                scrollTrigger: {
+                    trigger: '#portfolio-grid',
+                    start: "top 80%",
+                },
+                y: 100,
+                opacity: 0,
+                duration: 0.8,
+                stagger: 0.1,
+                ease: "power3.out"
+            });
+
+            // Service Cards
+            gsap.from('.service-card', {
+                scrollTrigger: {
+                    trigger: '#services',
+                    start: "top 70%",
+                },
+                y: 60,
+                opacity: 0,
+                duration: 0.8,
+                stagger: 0.15,
+                ease: "power3.out"
+            });
+
+            // Parallax on scroll
+            gsap.to('#hero-title', {
+                scrollTrigger: {
+                    trigger: '#home',
+                    start: "top top",
+                    end: "bottom top",
+                    scrub: 1
+                },
+                y: 200,
+                ease: "none"
+            });
+        }
+
+        // Portfolio Filter
+        const filterBtns = document.querySelectorAll('.filter-btn');
+        const portfolioItems = document.querySelectorAll('.portfolio-card');
+
+        filterBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                filterBtns.forEach(b => {
+                    b.classList.remove('active', 'border-white', 'text-white');
+                    b.classList.add('border-transparent', 'text-gray-500');
+                });
+                btn.classList.add('active', 'border-white', 'text-white');
+                btn.classList.remove('border-transparent', 'text-gray-500');
+
+                const filter = btn.getAttribute('data-filter');
+
+                portfolioItems.forEach(item => {
+                    const category = item.getAttribute('data-category');
+                    
+                    if (filter === 'all' || category === filter) {
+                        gsap.to(item, {
+                            scale: 1,
+                            opacity: 1,
+                            duration: 0.4,
+                            display: 'block'
+                        });
+                    } else {
+                        gsap.to(item, {
+                            scale: 0.8,
+                            opacity: 0,
+                            duration: 0.4,
+                            display: 'none'
+                        });
+                    }
+                });
+            });
+        });
+
+        // Magnetic Effect
+        const magneticWraps = document.querySelectorAll('.magnetic-wrap');
+        
+        magneticWraps.forEach(wrap => {
+            const area = wrap.querySelector('.magnetic-area');
+            const content = wrap.querySelector('span');
+            
+            wrap.addEventListener('mousemove', (e) => {
+                const rect = wrap.getBoundingClientRect();
+                const x = e.clientX - rect.left - rect.width / 2;
+                const y = e.clientY - rect.top - rect.height / 2;
+                
+                gsap.to(content, {
+                    x: x * 0.3,
+                    y: y * 0.3,
+                    duration: 0.3,
+                    ease: "power2.out"
+                });
+            });
+            
+            wrap.addEventListener('mouseleave', () => {
+                gsap.to(content, {
+                    x: 0,
+                    y: 0,
+                    duration: 0.3,
+                    ease: "power2.out"
+                });
+            });
+        });
+
+        // Mobile Menu
+        const menuToggle = document.getElementById('menu-toggle');
+        const mobileMenu = document.getElementById('mobile-menu');
+        const mobileLinks = document.querySelectorAll('.mobile-link');
+        let isMenuOpen = false;
+
+        menuToggle.addEventListener('click', () => {
+            isMenuOpen = !isMenuOpen;
+            
+            if (isMenuOpen) {
+                mobileMenu.classList.remove('translate-x-full');
+                document.body.style.overflow = 'hidden';
+                
+                gsap.to(mobileLinks, {
+                    y: 0,
+                    opacity: 1,
+                    duration: 0.6,
+                    stagger: 0.1,
+                    delay: 0.3,
+                    ease: "power3.out"
+                });
+            } else {
+                mobileMenu.classList.add('translate-x-full');
+                document.body.style.overflow = '';
+                
+                gsap.set(mobileLinks, {
+                    y: 20,
+                    opacity: 0
+                });
+            }
+        });
+
+        mobileLinks.forEach(link => {
+            link.addEventListener('click', () => {
+                isMenuOpen = false;
+                mobileMenu.classList.add('translate-x-full');
+                document.body.style.overflow = '';
+                gsap.set(mobileLinks, { y: 20, opacity: 0 });
+            });
+        });
+
+        // Contact Form
+        const contactForm = document.getElementById('contact-form');
+        const successModal = document.getElementById('success-modal');
+        const modalContent = document.getElementById('modal-content');
+
+        contactForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            successModal.classList.remove('hidden');
+            successModal.classList.add('flex');
+            
+            setTimeout(() => {
+                modalContent.classList.remove('scale-95', 'opacity-0');
+                modalContent.classList.add('scale-100', 'opacity-100');
+            }, 10);
+            
+            contactForm.reset();
+        });
+
+        function closeModal() {
+            modalContent.classList.remove('scale-100', 'opacity-100');
+            modalContent.classList.add('scale-95', 'opacity-0');
+            
+            setTimeout(() => {
+                successModal.classList.add('hidden');
+                successModal.classList.remove('flex');
+            }, 300);
+        }
+
+        // Smooth Scroll
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    gsap.to(window, {
+                        duration: 1,
+                        scrollTo: { y: target, offsetY: 80 },
+                        ease: "power3.inOut"
+                    });
+                }
+            });
+        });
+
+        // Velocity Skew on Scroll
+        let lastScrollTop = 0;
+        let ticking = false;
+
+        window.addEventListener('scroll', () => {
+            if (!ticking) {
+                window.requestAnimationFrame(() => {
+                    const st = window.pageYOffset || document.documentElement.scrollTop;
+                    const velocity = st - lastScrollTop;
+                    const skew = Math.min(Math.max(velocity * 0.05, -5), 5);
+                    
+                    document.querySelectorAll('.velocity-skew').forEach(el => {
+                        el.style.transform = `skewY(${skew}deg)`;
+                    });
+                    
+                    lastScrollTop = st <= 0 ? 0 : st;
+                    ticking = false;
+                });
+                
+                ticking = true;
+            }
+        }, { passive: true });
+    </script>
+</body>
+</html>
